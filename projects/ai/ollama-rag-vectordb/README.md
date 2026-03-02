@@ -104,49 +104,106 @@ curl -k -u admin:your-password https://localhost:8443/api/tags
 
 ## GPU Configuration
 
-### NVIDIA GPU
-
-The deployment is pre-configured for NVIDIA GPU passthrough. Requirements:
-
-1. **NVIDIA Driver** - Install on host system
-2. **NVIDIA Container Toolkit** - For Podman GPU support
+GPU support is provided through compose override files. Use the appropriate command for your hardware:
 
 ```bash
-# Verify GPU is detected
-nvidia-smi
+# Detect your GPU and get recommendations
+make detect-gpu
 
-# Install NVIDIA Container Toolkit (Fedora/RHEL)
-sudo dnf install nvidia-container-toolkit
-sudo nvidia-ctk cdk configure --runtime=podman
+# CPU only (no GPU)
+make up
+
+# NVIDIA GPU (with nvidia-container-toolkit)
+make up-nvidia
+
+# NVIDIA GPU (direct passthrough, no toolkit required)
+make up-nvidia-direct
+
+# AMD GPU (ROCm)
+make up-amd
+```
+
+### NVIDIA GPU
+
+**Option 1: With NVIDIA Container Toolkit (Recommended)**
+
+```bash
+# Install NVIDIA drivers (if not already installed)
+# Fedora/RHEL
+sudo dnf install akmod-nvidia
+
+# Install NVIDIA Container Toolkit
+sudo dnf install nvidia-container-toolkit   # Fedora/RHEL
+sudo apt install nvidia-container-toolkit   # Debian/Ubuntu
+
+# Generate CDI specification for Podman
+sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
+
+# Verify setup
+nvidia-ctk cdi list
+
+# Start with NVIDIA GPU
+make up-nvidia
+```
+
+**Option 2: Direct Device Passthrough (No Toolkit)**
+
+If you can't install the container toolkit, use direct passthrough:
+
+```bash
+# Verify NVIDIA devices exist
+ls -la /dev/nvidia*
+
+# Start with direct passthrough
+make up-nvidia-direct
+```
+
+Edit `compose.nvidia-direct.yml` to add more GPUs if needed.
+
+### AMD GPU (ROCm)
+
+```bash
+# Install ROCm drivers
+# See: https://rocm.docs.amd.com/
+
+# Add user to required groups
+sudo usermod -aG render,video $USER
+# Log out and back in
+
+# Verify ROCm installation
+rocminfo
+
+# Check your GPU's GFX version
+rocminfo | grep gfx
+
+# Start with AMD GPU
+make up-amd
+```
+
+**GFX Version Override**
+
+For GPUs not officially supported, set `HSA_OVERRIDE_GFX_VERSION` in `.env`:
+
+```bash
+# RX 6000 series (RDNA2)
+HSA_OVERRIDE_GFX_VERSION=10.3.0
+
+# RX 7000 series (RDNA3) - usually auto-detected
+# HSA_OVERRIDE_GFX_VERSION=11.0.0
 ```
 
 ### Multiple GPUs
 
-Edit `podman-compose.yml` to add additional GPU devices:
-
-```yaml
-devices:
-  - /dev/nvidia0:/dev/nvidia0
-  - /dev/nvidia1:/dev/nvidia1  # Add more GPUs
-```
-
-Or use environment variables:
-
+**NVIDIA:** Set in `.env`:
 ```bash
-NVIDIA_VISIBLE_DEVICES=0,1  # Specific GPUs
-NVIDIA_VISIBLE_DEVICES=all   # All GPUs
+NVIDIA_VISIBLE_DEVICES=0,1    # Specific GPUs
+NVIDIA_VISIBLE_DEVICES=all    # All GPUs
 ```
 
-### AMD GPU (ROCm)
-
-For AMD GPUs, modify the `ollama/Dockerfile` and compose file:
-
-```yaml
-devices:
-  - /dev/kfd:/dev/kfd
-  - /dev/dri:/dev/dri
-environment:
-  - HSA_OVERRIDE_GFX_VERSION=10.3.0  # Adjust for your GPU
+**AMD:** Set in `.env`:
+```bash
+ROCR_VISIBLE_DEVICES=0,1      # Specific GPUs
+ROCR_VISIBLE_DEVICES=all      # All GPUs
 ```
 
 ## Authentication

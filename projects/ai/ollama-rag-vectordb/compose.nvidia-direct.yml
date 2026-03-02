@@ -1,0 +1,37 @@
+# NVIDIA GPU Direct Passthrough Override for Ollama
+# Use when nvidia-container-toolkit CDI is not available
+#
+# Use with: podman-compose -f podman-compose.yml -f compose.nvidia-direct.yml up -d
+#
+# Prerequisites:
+#   - NVIDIA GPU with driver installed
+#   - Verify devices exist: ls -la /dev/nvidia*
+#
+# Note: This method passes devices directly without the container toolkit.
+# It may require additional configuration for proper CUDA support.
+
+version: "3.9"
+
+services:
+  ollama:
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES:-all}
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    devices:
+      # Core NVIDIA devices
+      - /dev/nvidia0:/dev/nvidia0
+      - /dev/nvidiactl:/dev/nvidiactl
+      - /dev/nvidia-uvm:/dev/nvidia-uvm
+      # nvidia-uvm-tools may not exist on all systems
+      # - /dev/nvidia-uvm-tools:/dev/nvidia-uvm-tools
+      #
+      # Add additional GPUs as needed:
+      # - /dev/nvidia1:/dev/nvidia1
+      # - /dev/nvidia2:/dev/nvidia2
+    # Required for GPU memory allocation
+    security_opt:
+      - no-new-privileges:true
+    # May be needed for some NVIDIA setups
+    # privileged: false
+    # cap_add:
+    #   - SYS_RESOURCE

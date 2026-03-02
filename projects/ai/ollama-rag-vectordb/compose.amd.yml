@@ -1,0 +1,46 @@
+# AMD GPU (ROCm) Override for Ollama
+# Use with: podman-compose -f podman-compose.yml -f compose.amd.yml up -d
+#
+# Prerequisites:
+#   - AMD GPU with ROCm support (RDNA2/RDNA3, CDNA, or supported GCN)
+#   - ROCm drivers installed: https://rocm.docs.amd.com/
+#   - User in 'render' and 'video' groups: sudo usermod -aG render,video $USER
+#
+# Supported GPUs:
+#   - RX 6000 series (RDNA2): gfx1030, gfx1031, gfx1032
+#   - RX 7000 series (RDNA3): gfx1100, gfx1101, gfx1102
+#   - MI series (CDNA): gfx908, gfx90a, gfx940, gfx941, gfx942
+#   - Some older GCN cards with HSA_OVERRIDE_GFX_VERSION
+#
+# Verify GPU: rocminfo | grep -i "name"
+# Check gfx version: rocminfo | grep -i gfx
+
+version: "3.9"
+
+services:
+  ollama:
+    # Use ROCm-enabled Ollama image
+    image: docker.io/ollama/ollama:${OLLAMA_VERSION:-0.5.13}-rocm
+    environment:
+      # ROCm environment variables
+      - HSA_OVERRIDE_GFX_VERSION=${HSA_OVERRIDE_GFX_VERSION:-}
+      - ROCR_VISIBLE_DEVICES=${ROCR_VISIBLE_DEVICES:-all}
+      # HIP environment
+      - HIP_VISIBLE_DEVICES=${HIP_VISIBLE_DEVICES:-}
+      # GPU memory settings
+      - GPU_MAX_ALLOC_PERCENT=${GPU_MAX_ALLOC_PERCENT:-100}
+      - HSA_ENABLE_SDMA=${HSA_ENABLE_SDMA:-0}
+    devices:
+      # KFD (Kernel Fusion Driver) - Required for ROCm
+      - /dev/kfd:/dev/kfd
+      # DRI (Direct Rendering Infrastructure) - GPU access
+      - /dev/dri:/dev/dri
+    # Required for ROCm GPU access
+    group_add:
+      - video
+      - render
+    # ROCm may need IPC for multi-GPU
+    ipc: host
+    # Security options compatible with ROCm
+    security_opt:
+      - seccomp=unconfined
