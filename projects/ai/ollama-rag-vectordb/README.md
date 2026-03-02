@@ -79,8 +79,8 @@ chmod 700 data/models data/logs
 ### 4. Build and Start
 
 ```bash
-# Build containers
-podman-compose build
+# Build nginx proxy (Ollama uses official image)
+podman-compose build nginx-proxy
 
 # Start services
 podman-compose up -d
@@ -259,9 +259,6 @@ ollama-rag-vectordb/
 │   ├── auth.conf.template
 │   ├── ip-whitelist.conf.template
 │   ├── whitelist-check.conf.template
-│   └── docker-entrypoint.sh
-├── ollama/                   # Ollama server
-│   ├── Dockerfile
 │   └── docker-entrypoint.sh
 ├── scripts/
 │   ├── generate-certs.sh    # Certificate generator

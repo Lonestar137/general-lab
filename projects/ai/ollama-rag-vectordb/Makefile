@@ -50,7 +50,7 @@ certs-custom:
 
 dirs:
 	@echo "Creating data directories..."
-	mkdir -p data/models data/logs/nginx data/logs/ollama
+	mkdir -p data/models data/logs/nginx
 	chmod 700 data/models data/logs
 
 env:
@@ -72,8 +72,8 @@ setup: dirs certs env build
 
 # Container targets
 build:
-	@echo "Building container images..."
-	podman-compose build
+	@echo "Building nginx proxy image (Ollama uses official image)..."
+	podman-compose build nginx-proxy
 
 up:
 	@echo "Starting services..."
