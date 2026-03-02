@@ -1,0 +1,38 @@
+# Operating System
+*.DS_Store
+Thumbs.db
+
+# Node.js
+**/node_modules/
+**/package-lock.json
+**/yarn.lock
+**/.pnp
+
+# Python
+*.pyc
+__pycache__/
+env/
+venv/
+
+# Go
+**/bin/
+**/pkg/
+
+# Rust
+**/target/
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+
+# Misc
+*.log
+*.tmp
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
