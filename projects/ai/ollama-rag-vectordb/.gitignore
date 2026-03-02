@@ -1,0 +1,38 @@
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+
+# SSL Certificates (sensitive)
+certs/
+*.key
+*.crt
+*.pem
+*.csr
+
+# Data directories
+data/
+models/
+
+# Logs
+logs/
+*.log
+
+# Podman/Docker
+.podman/
+.docker/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp

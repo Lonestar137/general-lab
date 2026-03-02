@@ -1,0 +1,23 @@
+# IP Whitelist Configuration Template
+# This file is processed by the entrypoint script when WHITELIST_ENABLED=true
+#
+# Format for geo directive:
+#   <IP/CIDR>  1;
+#
+# Examples:
+#   192.168.1.100    1;    # Single IP
+#   10.0.0.0/8       1;    # CIDR range
+#   172.16.0.0/12    1;    # Private network
+#
+# The "1" value indicates the IP is whitelisted (allowed)
+# All other IPs default to "0" (denied)
+
+# Localhost is always allowed
+127.0.0.1       1;
+::1             1;
+
+# Container network (internal)
+172.28.0.0/24   1;
+
+# Add your whitelisted IPs/CIDRs below:
+# WHITELIST_IPS_PLACEHOLDER

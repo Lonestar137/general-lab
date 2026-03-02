@@ -1,0 +1,12 @@
+# Authentication Configuration Template
+# This file is processed by the entrypoint script when AUTH_ENABLED=true
+
+# Basic Authentication
+auth_basic "Ollama Secure API - Authorization Required";
+auth_basic_user_file /etc/nginx/auth/.htpasswd;
+
+# API Token Authentication (alternative)
+# Uncomment below and comment out auth_basic if using token auth
+# if ($http_authorization != "Bearer ${API_TOKEN}") {
+#     return 401;
+# }

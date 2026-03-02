@@ -1,0 +1,9 @@
+# Whitelist Enforcement Configuration
+# This file is included in server blocks to enforce IP whitelist
+#
+# If $whitelist_status is 0 (not whitelisted), return 403 Forbidden
+# If $whitelist_status is 1 (whitelisted), allow the request to proceed
+
+if ($whitelist_status = 0) {
+    return 403 '{"error": "Forbidden - IP not whitelisted", "client_ip": "$remote_addr"}';
+}
